@@ -12,66 +12,91 @@ An authoritative, structured peer-review skill for Information Systems (IS) rese
 
 ## Installation
 
-The repository is currently private, so the reliable install path is: clone it locally, then run `install.sh` from the checkout.
+`git clone` is not required. `install.sh` supports direct remote installation and will fetch the skill files itself.
 
-### Option A — Claude Code
+### Option A — Direct Install From GitHub
 
-**Prerequisites:** [Claude Code](https://claude.ai/code) installed
-
-```bash
-git clone git@github.com:c0mm4nd/is-review-skill.git
-cd is-review-skill
-./install.sh --claude
-```
-
-This installs the skill to `~/.claude/skills/is-paper-review/`. Restart Claude Code — the skill is auto-discovered.
-
-**Usage:** Trigger naturally in any Claude Code session:
-
-```
-"Review this IS paper for MISQ submission"
-"Give me a qualitative research review of this manuscript"
-"What are the weaknesses of this paper from a reviewer's perspective?"
-"Evaluate the theory section against top IS journal standards"
-```
-
----
-
-### Option B — OpenAI Codex
-
-**Prerequisites:** Codex installed
-
-```bash
-git clone git@github.com:c0mm4nd/is-review-skill.git
-cd is-review-skill
-./install.sh --codex
-```
-
-This installs the skill to `~/.agents/skills/is-paper-review/`. Start a new Codex session and trigger it naturally:
-
-```
-"Review this IS paper for MISQ submission"
-"Critique this IS manuscript like an ISR reviewer"
-"帮我审这篇信息系统论文，目标期刊是 JAIS"
-```
-
-### Option C — Install Both
-
-```bash
-git clone git@github.com:c0mm4nd/is-review-skill.git
-cd is-review-skill
-./install.sh
-```
-
-With no flags, `install.sh` installs to both `~/.claude/skills/` and `~/.agents/skills/`.
-
-### Optional — Remote Install After the Repo Is Public
-
-Once the repository is publicly reachable through GitHub raw URLs, these shortcuts also work:
+**Public repository, Codex**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/c0mm4nd/is-review-skill/main/install.sh | bash -s -- --codex
+```
+
+**Public repository, Claude Code**
+
+```bash
 curl -fsSL https://raw.githubusercontent.com/c0mm4nd/is-review-skill/main/install.sh | bash -s -- --claude
+```
+
+**Install both**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/c0mm4nd/is-review-skill/main/install.sh | bash
+```
+
+This installs the skill to:
+
+- `~/.agents/skills/is-paper-review/` for Codex
+- `~/.claude/skills/is-paper-review/` for Claude Code
+
+To install from a fork or branch without cloning:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/c0mm4nd/is-review-skill/main/install.sh | \
+  bash -s -- --codex --repo OWNER/REPO --ref BRANCH_OR_TAG
+```
+
+### Option B — Direct Install From a Private GitHub Repository
+
+If the repository is private, use a GitHub token and fetch through the GitHub Contents API instead of cloning:
+
+```bash
+export GITHUB_TOKEN=YOUR_GITHUB_TOKEN
+
+curl -fsSL \
+  -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+  -H "Accept: application/vnd.github.raw" \
+  "https://api.github.com/repos/c0mm4nd/is-review-skill/contents/install.sh?ref=main" | \
+  bash -s -- --codex --github-api --repo c0mm4nd/is-review-skill --ref main
+```
+
+Swap `--codex` for `--claude` if needed. The installer also accepts `GH_TOKEN`.
+
+### Option C — Agent-Assisted Install
+
+If your agent environment can execute shell commands or install skills from GitHub repo paths, you can ask it to install this repo directly without cloning.
+
+**Prompt examples**
+
+```text
+Install the skill from https://github.com/c0mm4nd/is-review-skill for Codex. Do not clone the repository locally; use the repo's remote installer.
+```
+
+```text
+请帮我把 https://github.com/c0mm4nd/is-review-skill 安装成 Codex skill，不要先 clone，到 ~/.agents/skills/is-paper-review。
+```
+
+For private repositories, give the agent an authenticated GitHub context or a `GITHUB_TOKEN`, then have it use the GitHub API install path above.
+
+### Option D — Local Install While Developing
+
+If you are already inside a checkout and want to install the local working copy:
+
+```bash
+./install.sh --codex
+./install.sh --claude
+./install.sh
+```
+
+### After Installation
+
+Start a new Claude Code or Codex session. Trigger the skill naturally:
+
+```text
+Review this IS paper for MISQ submission
+Give me a qualitative research review of this manuscript
+Critique this IS manuscript like an ISR reviewer
+帮我审这篇信息系统论文，目标期刊是 JAIS
 ```
 
 ## Repository Structure
@@ -92,7 +117,7 @@ curl -fsSL https://raw.githubusercontent.com/c0mm4nd/is-review-skill/main/instal
 | File | Claude Code | Codex |
 |---|---|---|
 | `is-paper-review/SKILL.md` | Core trigger + workflow | Core trigger + workflow |
-| `install.sh` | Installs into `~/.claude/skills/` | Installs into `~/.agents/skills/` |
+| `install.sh` | Local or remote install into `~/.claude/skills/` | Local or remote install into `~/.agents/skills/` |
 | `AGENTS.md` | Repo-local only | Repo-local only |
 | `references/review-framework.md` | Loaded on demand | Read on demand |
 | `references/methodology-guides.md` | Loaded on demand | Read on demand |
